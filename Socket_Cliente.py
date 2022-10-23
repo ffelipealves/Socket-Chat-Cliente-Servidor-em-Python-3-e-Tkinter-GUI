@@ -142,6 +142,151 @@ def inicia_aplicacao_jogador(ip_servidor):
         mostra_janela_SERVIDOR_CAIU()
         socket_jogador.close()  # << [USO DE SOCKETS NO CÓDIGO]
 
+def mostra_janela_PRINCIPAL():
+    global flag_estado_do_socket
+    global socket_jogador
+    
+    newWindow = Toplevel(root)
+    newWindow.title("Socket: Jogador-01")
+    newWindow.geometry("309x382")
+
+    bg_label = Label(newWindow,image = JANELA_PRINCIPAL_asset)
+    bg_label.place(x=0, y=0)
+
+    gif_bg_asset_url = resource_path('recursos/chat_bubble_GIF.gif') 
+    lbl_with_my_gif = AnimatedGif(newWindow, gif_bg_asset_url,0.30)
+    lbl_with_my_gif.place(x=80, y=31)
+    lbl_with_my_gif.start()
+
+    newWindow.protocol("WM_DELETE_WINDOW", lambda:fecha_APLICACAO_2(newWindow))
+
+    # Abaixo instanciamos o widget aonde as mensagens são mostradas no chat.
+    text_area = ScrolledText(newWindow,wrap = WORD,width = 38,height = 12,font = ("Callibri",8))
+    text_area.place(x=28, y=152)
+    text_area.focus()
+    
+    jogador_text_input = Entry(newWindow,width = 30)
+    jogador_text_input.place(x=100, y=352)
+    envia_mensagem_jogador_button = Button(newWindow, image=botao_ENVIA_MSG_JOGADOR_asset,command=lambda:envia_mensagem(str(jogador_text_input.get()),text_area))
+    envia_mensagem_jogador_button.place(x=17, y=334)
+
+    text_area.insert(tk.INSERT, "<Você entrou> Bem vindo ao chat!~\n", 'msg')
+    text_area.tag_config('msg', foreground='blue')
+
+    if flag_estado_do_socket == 1:
+        msg = '<Jogador-01 entrou no chat!>'
+        socket_jogador.send(msg.encode()) # << [USO DE SOCKETS NO CÓDIGO]
+
+    threading.Thread(target=recebe_mensagens, args=(text_area,socket_jogador)).start() #<---- THREAD 'recebe_mensagens' *****
+
+    """
+*
+*       *******************************************************************************************
+*  ~~~ Codigos das ações e variáveis do Socket de comunicação do Jogador com o Servidor na aplicação ~~~
+*       *******************************************************************************************
+*
+"""
+
+"""
+Funções utilizadas pelos Sockets jogador
+"""
+
+def mostra_janela_SERVIDOR_CAIU():
+    newWindow = Toplevel(root)
+    newWindow.title("Jogador-01: Aviso!")
+    newWindow.geometry("280x155")
+
+    newWindow.protocol("WM_DELETE_WINDOW", lambda:fecha_APLICACAO_2(newWindow))
+
+    gif_bg_asset_url = resource_path('recursos/img_AVISO_SERVIDOR_DESCONECTADO_jogador_bg.gif') 
+    lbl_with_my_gif = AnimatedGif(newWindow, gif_bg_asset_url,0.30)
+    lbl_with_my_gif.place(x=0, y=0)
+    lbl_with_my_gif.start()
+
+    ok_button = Button(newWindow, image=imagem_OK_BUTTON_asset,command=lambda:fecha_APLICACAO_2(newWindow))
+    ok_button.place(x=127, y=107)
+        
+ """
+Função para ficar checando se o servidor ainda está ativo enquando o código do jogador está rodando.
+"""
+def checa_SERVIDOR_INICIO(event,Toplevel_entry):
+    global flag_estado_do_socket
+    global socket_jogador
+
+    try:
+        msg = ''
+        socket_jogador.send(msg.encode()) # << [USO DE SOCKETS NO CÓDIGO]
+        
+    except Exception as erro:
+        socket_jogador.close() # << [USO DE SOCKETS NO CÓDIGO]
+        flag_estado_do_socket = 0
+
+    if flag_estado_do_socket == 1:
+        mostra_interface_principal_jogador(Toplevel_entry)
+
+    else:
+        mostra_janela_SERVIDOR_CAIU()
+
+def checa_SERVIDOR_INICIO_caso_02(newWindow,flag):
+    global flag_estado_do_socket
+    global socket_jogador
+
+    try:
+        msg = ''
+        socket_jogador.send(msg.encode()) # << [USO DE SOCKETS NO CÓDIGO]
+        
+    except Exception as erro:
+        socket_jogador.close() # << [USO DE SOCKETS NO CÓDIGO]
+        flag_estado_do_socket = 0
+
+    fecha_APLICACAO(newWindow,flag)
+
+# Abaixo, lemos a entrada do widget do Tkinter do tipo 'Entry' e armazemos seu valor na variavel 'msg' e mandamos ela ao servidor:
+def envia_mensagem(entry_widget,ScrolledText):
+    global flag_estado_do_socket
+    global socket_jogador
+    
+    msg = entry_widget
+
+    if flag_estado_do_socket == 1:
+        ScrolledText.insert(tk.INSERT,"<Você>: "+msg+"\n")
+        socket_jogador.send(msg.encode())  # << [USO DE SOCKETS NO CÓDIGO]
+
+    else:
+        ScrolledText.insert(tk.INSERT,"<Você>: "+msg+"\n")
+        socket_jogador.send(msg.encode())  # << [USO DE SOCKETS NO CÓDIGO]
+
+def recebe_mensagens(ScrolledText,jogador_socket: socket.socket):
+    # Aqui recebe as mensagens enviadas pelo servidro e mostra elas pro próprio jogador, aqui uso um widget de texto do tkinter (ScrolledText) para exibí-las:
+    global socket_jogador
+
+    while True:
+        try:
+            msg = jogador_socket.recv(1024) #<---- Fica esperando receber as mensagens enviadas pelo servidor (Máximo de 1024 bytes).
+            
+            if str(msg.decode())!= "":
+                ScrolledText.insert(tk.INSERT,"<Jogador-02>: "+str(msg.decode())+"\n")
+                #print("<Jogador-02>: "+str(msg.decode())+"\n")
+
+        except Exception as erro: #<---- Quando o servidor cai.
+            print(erro)
+            mostra_janela_SERVIDOR_CAIU()
+            jogador_socket.close()  # << [USO DE SOCKETS NO CÓDIGO]
+            flag_estado_do_socket = 0
+            break
+
+# https://www.delftstack.com/pt/howto/python/get-ip-address-python/#:~:text=locais%20usando%20Python.-,Use%20a%20fun%C3%A7%C3%A3o%20socket.,o%20Python%20est%C3%A1%20sendo%20executado.
+def extrai_IP_da_maquina():
+    st = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:       
+        st.connect(('10.255.255.255', 1))
+        IP = st.getsockname()[0]
+    except Exception:
+        IP = '127.0.0.1'
+    finally:
+        st.close()
+    return IP
+     
 """
 *
 *       **********************************
