@@ -1,4 +1,3 @@
-
 """
 *
 *       *******************
@@ -20,12 +19,17 @@ from tkinter import *
 from tkinter.scrolledtext import ScrolledText
 import tkinter.font as font
 
+# Importo do arquivo 'AnimatedGIF.py' que encontrei na web para animar gifs no tkinter.
 # Uso para a criação dos gifs e animações da interface, todo o crédito desse código para o github e seu autor: https://github.com/olesk75/AnimatedGIF
+# (Agradeço muito ao autor, 'Olesk75', por ter criado essa MARAVILHA pro tkinter rsrsrsr):
 from AnimatedGIF import *
+
+""" { Principais variáveis utilizadas pelo jogador } """
 
 # Variavel que irá receber o socket do jogador:
 global socket_jogador
 global flag_estado_do_socket
+
 
 """
  Abaixo o método que utilizo para armazenar todos os caminhos de imagens usadas aqui nesse código para poder transformá-lo em um .exe.
@@ -70,10 +74,25 @@ JANELA_PRINCIPAL_asset = PhotoImage(file=path_JANELA_PRINCIPAL_asset, master=roo
 path_imagem_OK_BUTTON_asset = resource_path('recursos/button_img_OK.png')
 imagem_OK_BUTTON_asset = PhotoImage(file=path_imagem_OK_BUTTON_asset, master=root)
 
+"""
+*Obs. Todas as funções que tem um "2" no final são funções que não tem o parâmetro "event" nelas, ou seja, que não são usadas em eventos de "bind" dos botões.
+"""
 def fecha_APLICACAO_2(Toplevel):
+
+
+    # Usei-me dos conhecimentos explicados desse método para o objeto "Toplevel" do Tkinter na seguinte discussão do
+    # site Stackoverflow, todos os créditos a eles, apenas usei-me dos conhecimentos que eles apresentaram:
+    # https://stackoverflow.com/questions/54245012/how-to-only-close-toplevel-window-in-python-tkinter 
     Toplevel.destroy()
+
+    # O método abaixo fecha a janela TOPLEVEL e TODO O MAINLOOP do TKINTER, fechando logo a aplicação toda.
     Toplevel.quit()
+
+    # Por garantia, caso a root ainda esteja rodando, no método abaixo nós encerramos ela.
     root. destroy()
+
+    # Abaixo encerramos a aplicação do Jogador como um todo, pedindo ao próprio SO que encerre a execução do programa e suas threads.
+    # Baseei-me no lik: https://stackoverflow.com/questions/73663/how-to-terminate-a-script
     os._exit(1) 
 
 def fecha_janela_TOPLEVEL(Toplevel):
@@ -82,14 +101,18 @@ def fecha_janela_TOPLEVEL(Toplevel):
 def fecha_janela_TOPLEVEL(Toplevel):
     Toplevel.destroy()
 
+# Aviso de IP inválido:
 def aviso_dados_IP_ERRADOS():
     newWindow = Toplevel(root)
     newWindow.title("Jogador-01: Aviso!")
     newWindow.geometry("280x155")
+
     insere_dados_IP_SERVIDOR_label = Label(newWindow,image = label_DADOS_IP_INVALIDOS_bg_asset, width=276, height=151)
     insere_dados_IP_SERVIDOR_label.place(x=0, y=0)
 
+# Checamos a validade do IP com a ajuda da biblioteca 'ipaddress'. Mais no link: https://stackoverflow.com/questions/319279/how-to-validate-ip-address-in-python.
 def checa_ip(endereco_ip,Toplevel_entry):
+    # O 'Try Catch' abaixo, com esse 'else' é usado seguindo o exemplo no site: https://www.geeksforgeeks.org/python-try-except/.
     try:
         ipaddress.ip_address(endereco_ip)
     except Exception as erro:
@@ -98,6 +121,7 @@ def checa_ip(endereco_ip,Toplevel_entry):
         fecha_janela_TOPLEVEL(Toplevel_entry)
         inicia_aplicacao_jogador(endereco_ip)
 
+# Janela que pede os dados do IP do servidor
 def pede_dados_IP_SERVIDOR():
     newWindow = Toplevel(root)
     newWindow.title("Socket: Jogador-01")
@@ -107,13 +131,15 @@ def pede_dados_IP_SERVIDOR():
 
     insere_dados_IP_SERVIDOR_label = Label(newWindow,image = label_INSERE_DADOS_IP_SERVIDOR_bg_asset, width=276, height=151)
     insere_dados_IP_SERVIDOR_label.place(x=0, y=0)
-    
+
     jogador_text_input = Entry(newWindow,width = 27)
     jogador_text_input.place(x=98, y=62)
 
+    # https://python-forum.io/thread-26854.html <--- Como fazer o texto de um botão do tkinter ficar em Negrito
     continuar_button = Button(newWindow, text='Conectar ...', font='sans 11 bold', width=12, height=int(1.5), command=lambda:checa_ip(str(jogador_text_input.get()),newWindow))
     continuar_button.place(x=140, y=96)
 
+# Aqui é onde iniciamos o socket do jogador e o começo d ainterface da aplicação.
 def inicia_aplicacao_jogador(ip_servidor):
     global socket_jogador
     global flag_estado_do_socket
@@ -179,7 +205,8 @@ def mostra_janela_PRINCIPAL():
 
     threading.Thread(target=recebe_mensagens, args=(text_area,socket_jogador)).start() #<---- THREAD 'recebe_mensagens' *****
 
-    """
+
+"""
 *
 *       *******************************************************************************************
 *  ~~~ Codigos das ações e variáveis do Socket de comunicação do Jogador com o Servidor na aplicação ~~~
@@ -205,8 +232,8 @@ def mostra_janela_SERVIDOR_CAIU():
 
     ok_button = Button(newWindow, image=imagem_OK_BUTTON_asset,command=lambda:fecha_APLICACAO_2(newWindow))
     ok_button.place(x=127, y=107)
-        
- """
+
+"""
 Função para ficar checando se o servidor ainda está ativo enquando o código do jogador está rodando.
 """
 def checa_SERVIDOR_INICIO(event,Toplevel_entry):
@@ -286,7 +313,7 @@ def extrai_IP_da_maquina():
     finally:
         st.close()
     return IP
-     
+
 """
 *
 *       **********************************
@@ -295,6 +322,10 @@ def extrai_IP_da_maquina():
 *
 """
 
+"""
+  if __name__ == “main”: é usado para executar algum código somente se o arquivo foi executado diretamente, e não importado. 
+"""
+
 if __name__ == "__main__":
-    pede_dados_IP_SERVIDOR()
-    root.mainloop()     
+    pede_dados_IP_SERVIDOR() # Começa-se pedindo o IP em que o Servidor está, a porta é a mesma definida via "HARDCODE" (Ou seja, no próprio código) no Servidor, o Servidor e os jogadores tem a mesma porta. 
+    root.mainloop()          # O IP precisa ser o mesmo que o servidor para poder possibilitar a conexão em máquinas diferentes (Mas o mesmo funciona em uma mesma ma´quina também). 
