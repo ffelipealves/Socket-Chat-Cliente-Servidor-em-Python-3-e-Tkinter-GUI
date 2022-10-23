@@ -1,6 +1,7 @@
 # Socket-Chat-Cliente-Servidor-em-Python-3-e-Tkinter-GUI
 
-![image](https://user-images.githubusercontent.com/38107176/197371426-475f1795-4c0f-4c79-a9bf-49f8fcbfa68e.png)
+![image](https://user-images.githubusercontent.com/38107176/197371667-f5a8b73b-540f-4fe7-9fd1-a616e0d7e401.png)
+
 
 * >> Programa simples em Python 3 usando de interface gráfica no Tkinter para mostrar uma aplicação de Chat no formado "Cliente-Servidor" usando da tecnologia de comunicação de Sockets.
 
