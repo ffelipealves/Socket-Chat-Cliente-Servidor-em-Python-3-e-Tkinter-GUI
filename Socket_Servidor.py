@@ -45,6 +45,69 @@ def resource_path(relative_path):
 *       **************************************************************
 *
 """
+
+def recebe_msg_jogadores(jogador: socket.socket, text_area):
+    
+    #  Aqui nós 'capturamos' a conexão do usuário (jogador: socket.socket) para continuar recebendo suas mensagens e
+    #  enviá-las para outros usuários/conexões.
+
+    while True:
+        try:
+            msg = jogador.recv(1024) #<---- Aqui pegamos a mensagem enviada de nosso cliente. << [USO DE SOCKETS NO CÓDIGO]
+                
+            if msg:
+                # Construímmos e preparamos o formato da mensagem e a transmitimos em nossa função 'broadcast' aos outros clientes/jogador conectado(s): 
+                msg_para_enviar = f'{msg.decode()}'
+                envia_msg(msg_para_enviar, jogador,text_area)
+
+        except Exception as e:
+            text_area.insert(tk.INSERT,f"\n>> Error to handle user connection: {e}.\n--------------------------------------------------\n")
+            remove_conexao(jogador)
+            break
+
+# Envia a mensagem recebida de um Socket para os outros sockets conectados, com excessão, do Socket que mandou a mensagem.
+def envia_msg(mensagem: str, jogador: socket.socket,text_area):
+
+    # Aqui nós iteramos um laço na nossa lista de conexões para que esta mande as mensagens que recebe para seus outros clientes:
+    for conexao_jogador in conexoes_jogadores:
+        
+        # Verificamos se não é a conexão de quem está enviando, aqui optamos por enviar a mensagem para
+        # todos os outro clientes com exceção do que está enviando ela:
+        if conexao_jogador != jogador:
+            try:
+                
+                # Manda mensagem para a conexão de determinado cliente
+                conexao_jogador.send(mensagem.encode()) # << [USO DE SOCKETS NO CÓDIGO]
+
+            # Se não conseguimos mandar a mensagem pode ser que o socket não esteja mais ativo e assim removemos
+            # sua conexão da lista para evitarmos mais problemas.
+            except Exception as e:
+                text_area.insert(tk.INSERT,"\n>> Error broadcasting message: {e}.\n--------------------------------------------------\n")
+                remove_conexao(conexao_jogador)
+
+# Removemos uma das conexões de um dos Sockets dentro da nossa lista global de Sockets
+def remove_conexao(jogador: socket.socket):
+
+    # Aqui verificamos se a conexão existe na nossa lista de conexões...
+    if jogador in conexoes_jogadores:
+
+        # Se ela existir, nós fechamos a conexão desses socket e a removemos da nossa lista para deixarmos espaço para novas solicitações:
+        jogador.close() # << [USO DE SOCKETS NO CÓDIGO]
+        conexoes_jogadores.remove(jogador)
+
+# Função tirada no que é discutido no seguinte link: https://stackoverflow.com/questions/166506/finding-local-ip-addresses-using-pythons-stdlib
+# Este método retorna o IP "primário" da máquina local em que a aplicação está conectada (o IP com uma rota padrão, que aqui é o IPv4).
+def extrai_IP_da_maquina():
+    st = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:       
+        st.connect(('10.255.255.255', 1))
+        IP = st.getsockname()[0]
+    except Exception:
+        IP = '127.0.0.1'
+    finally:
+        st.close()
+    return IP
+
 def servidor(text_area):    
     IP_SERVIDOR =  str(extrai_IP_da_maquina()) #<---- IP DO SERVIDOR, AQUI É PEGUE O IP DA MÁQUINA DO TIPO IPv4! (Ou seja, operamos um esquema de endereçamento IPv4)
     PORTA_SERVIDOR = 12000 #<---- PORTA INSTANCIADA DO SERVIDOR (Usamos uma porta de valor muito alto pois portas de valores pequenos são usadas pelo SO e podem causar conflitos na aplicação)
