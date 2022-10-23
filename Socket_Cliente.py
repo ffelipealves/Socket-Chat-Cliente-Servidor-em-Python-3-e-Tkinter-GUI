@@ -45,9 +45,26 @@ def resource_path(relative_path):
 *
 """
 
-
+"""
+Cria objeto "Tkinter"/"Tk"
+"""
 root = Tk()
+
+"""
+Aqui escondemos a janela 'default' do Tkinter que chamamos de 'Root' (Faço isso pois vou trabalhar com muitas janelas e só a root não dá conta.)
+"""
 root.withdraw()
+
+path_botao_ENVIA_MSG_JOGADOR_asset = resource_path('recursos/button_img_mandar_msg.png')
+botao_ENVIA_MSG_JOGADOR_asset = PhotoImage(file=path_botao_ENVIA_MSG_JOGADOR_asset, master=root)
+path_label_INSERE_DADOS_IP_SERVIDOR_bg_asset = resource_path('recursos/img_INSERE_DADOS_IP_SERVIDOR_bg.png')
+label_INSERE_DADOS_IP_SERVIDOR_bg_asset = PhotoImage(file=path_label_INSERE_DADOS_IP_SERVIDOR_bg_asset, master=root)
+path_label_DADOS_IP_INVALIDOS_bg_asset = resource_path('recursos/img_DADOS_IP_INVALIDOS_bg.png')
+label_DADOS_IP_INVALIDOS_bg_asset = PhotoImage(file=path_label_DADOS_IP_INVALIDOS_bg_asset, master=root)
+path_JANELA_PRINCIPAL_asset = resource_path('recursos/img_JANELA_PRINCIPAL_bg.png')
+JANELA_PRINCIPAL_asset = PhotoImage(file=path_JANELA_PRINCIPAL_asset, master=root)
+path_imagem_OK_BUTTON_asset = resource_path('recursos/button_img_OK.png')
+imagem_OK_BUTTON_asset = PhotoImage(file=path_imagem_OK_BUTTON_asset, master=root)
 
 def fecha_APLICACAO_2(Toplevel):
     Toplevel.destroy()
