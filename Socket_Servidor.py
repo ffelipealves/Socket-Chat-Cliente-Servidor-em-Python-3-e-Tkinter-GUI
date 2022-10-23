@@ -22,6 +22,8 @@ import tkinter.font as font
 
 from AnimatedGIF import *
 
+conexoes_jogadores = []
+
 #
 #   Abaixo o método que utilizo para armazenar todos os caminhos de imagens usadas aqui nesse código para poder transformá-lo em um .exe.
 #
@@ -61,6 +63,11 @@ def mostra_janela_AVISO_FECHAR_SERVIDOR():
     newWindow.title("Servidor: Aviso!")
     newWindow.geometry("360x205")
 
+    gif_bg_asset_url = resource_path('recursos/img_AVISO_DESCONECTAR_SERVIDOR_bg.gif') 
+    lbl_with_my_gif = AnimatedGif(newWindow, gif_bg_asset_url,0.30)
+    lbl_with_my_gif.place(x=0, y=0)
+    lbl_with_my_gif.start()
+    
     sim_button = Button(newWindow, text='Sim', width=12, command=lambda:fecha_APLICACAO(newWindow))
     sim_button.place(x=124, y=154)
 
@@ -75,6 +82,11 @@ def mostra_janela_SERVIDOR():
 
     newWindow.protocol("WM_DELETE_WINDOW", mostra_janela_AVISO_FECHAR_SERVIDOR)
 
+    gif_bg_asset_url = resource_path('recursos/img_SERVIDOR_CONECTADO_bg.gif')    
+    lbl_with_my_gif = AnimatedGif(newWindow, gif_bg_asset_url,0.30)
+    lbl_with_my_gif.place(x=0, y=0)
+    lbl_with_my_gif.start()
+    
     text_area = ScrolledText(newWindow,wrap = WORD, fg='blue', width = 42,height = 7,font = ("Callibri",9))
     text_area.place(x=120, y=79)
     text_area.focus()
@@ -90,4 +102,5 @@ def mostra_janela_SERVIDOR():
 """
 
 if __name__ == "__main__":
+    threading.Thread(target=mostra_janela_SERVIDOR).start() #<---- THREAD 'mostra_janela_SERVIDOR' *****
     root.mainloop()
