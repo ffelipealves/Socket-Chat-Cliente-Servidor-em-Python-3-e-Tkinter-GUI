@@ -6,6 +6,7 @@
 *
 """
 
+
 #Bibliotecas para manipulação dos dados via Socket comm o uso de Threads:
 import socket, threading
 
@@ -19,9 +20,9 @@ import os
 from tkinter import *
 from tkinter.scrolledtext import ScrolledText
 import tkinter.font as font
-
 from AnimatedGIF import *
 
+#Variável global que mantém as conexões dos nossos 'clientes' sockets (Aqui são nossos jogadores)
 conexoes_jogadores = []
 
 #
@@ -108,6 +109,7 @@ def extrai_IP_da_maquina():
         st.close()
     return IP
 
+# Função principal do Servidor que recebe as conexões dos jogadores e começa uma nova thread para esperar suas mensagens.
 def servidor(text_area):    
     IP_SERVIDOR =  str(extrai_IP_da_maquina()) #<---- IP DO SERVIDOR, AQUI É PEGUE O IP DA MÁQUINA DO TIPO IPv4! (Ou seja, operamos um esquema de endereçamento IPv4)
     PORTA_SERVIDOR = 12000 #<---- PORTA INSTANCIADA DO SERVIDOR (Usamos uma porta de valor muito alto pois portas de valores pequenos são usadas pelo SO e podem causar conflitos na aplicação)
@@ -197,7 +199,7 @@ def mostra_janela_AVISO_FECHAR_SERVIDOR():
     lbl_with_my_gif = AnimatedGif(newWindow, gif_bg_asset_url,0.30)
     lbl_with_my_gif.place(x=0, y=0)
     lbl_with_my_gif.start()
-    
+
     sim_button = Button(newWindow, text='Sim', width=12, command=lambda:fecha_APLICACAO(newWindow))
     sim_button.place(x=124, y=154)
 
@@ -216,7 +218,7 @@ def mostra_janela_SERVIDOR():
     lbl_with_my_gif = AnimatedGif(newWindow, gif_bg_asset_url,0.30)
     lbl_with_my_gif.place(x=0, y=0)
     lbl_with_my_gif.start()
-    
+
     text_area = ScrolledText(newWindow,wrap = WORD, fg='blue', width = 42,height = 7,font = ("Callibri",9))
     text_area.place(x=120, y=79)
     text_area.focus()
@@ -231,6 +233,13 @@ def mostra_janela_SERVIDOR():
 *
 """
 
+#  if __name__ == “main”: é usado para executar algum código somente se o arquivo foi executado diretamente, e não importado. 
+
 if __name__ == "__main__":
     threading.Thread(target=mostra_janela_SERVIDOR).start() #<---- THREAD 'mostra_janela_SERVIDOR' *****
+
+
+    # O 'root.mainloop()' é responsável por manter a interfacer do Tkinter rodando constantemente, sem ele a interface
+    # só rodaria uma vez e encerraria, o que para o caso dessa aplicação não é o ideal.
     root.mainloop()
+
