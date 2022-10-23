@@ -23,6 +23,10 @@ import tkinter.font as font
 # Uso para a criação dos gifs e animações da interface, todo o crédito desse código para o github e seu autor: https://github.com/olesk75/AnimatedGIF
 from AnimatedGIF import *
 
+# Variavel que irá receber o socket do jogador:
+global socket_jogador
+global flag_estado_do_socket
+
 """
  Abaixo o método que utilizo para armazenar todos os caminhos de imagens usadas aqui nesse código para poder transformá-lo em um .exe.
 
@@ -82,6 +86,7 @@ def aviso_dados_IP_ERRADOS():
     newWindow = Toplevel(root)
     newWindow.title("Jogador-01: Aviso!")
     newWindow.geometry("280x155")
+    insere_dados_IP_SERVIDOR_label = Label(newWindow,image = label_DADOS_IP_INVALIDOS_bg_asset, width=276, height=151)
     insere_dados_IP_SERVIDOR_label.place(x=0, y=0)
 
 def checa_ip(endereco_ip,Toplevel_entry):
@@ -100,6 +105,9 @@ def pede_dados_IP_SERVIDOR():
 
     newWindow.protocol("WM_DELETE_WINDOW", lambda:fecha_APLICACAO_2(newWindow))
 
+    insere_dados_IP_SERVIDOR_label = Label(newWindow,image = label_INSERE_DADOS_IP_SERVIDOR_bg_asset, width=276, height=151)
+    insere_dados_IP_SERVIDOR_label.place(x=0, y=0)
+    
     jogador_text_input = Entry(newWindow,width = 27)
     jogador_text_input.place(x=98, y=62)
 
@@ -107,8 +115,32 @@ def pede_dados_IP_SERVIDOR():
     continuar_button.place(x=140, y=96)
 
 def inicia_aplicacao_jogador(ip_servidor):
-    
-    #Ajudar colocando o resto do código aqui <-----
+    global socket_jogador
+    global flag_estado_do_socket
+
+    # Ambos são os mesmos que o do servidor para poder possibilitara conexão em máquinas diferentes, ambas, dentro de um mesma rede é claro.
+    ENDERECO_JOGADOR = ip_servidor
+    PORTA_JOGADOR = 12000 # <--- Um valor alto para não dar conflitos no SO. Decidi fazer ela instanciada no código para evitar mais ainda problemas
+                          #      de porta com valores problemáticos caso o usuário pudesse instanciá-la também e colocasse um valor que conflitasse
+                          #      com os usados pela máquina.
+
+    flag_estado_do_socket = 0
+
+    try:
+        socket_jogador = socket.socket()  # << [USO DE SOCKETS NO CÓDIGO]
+        socket_jogador.connect((ENDERECO_JOGADOR, PORTA_JOGADOR))  # << [USO DE SOCKETS NO CÓDIGO]
+
+        msg_de_entrada = '<Jogador-01 conectou-se ao servidor!>'
+        socket_jogador.send(msg_de_entrada.encode())
+
+        flag_estado_do_socket = 1
+
+        mostra_janela_PRINCIPAL()
+        
+    except Exception as erro:
+        print(erro)
+        mostra_janela_SERVIDOR_CAIU()
+        socket_jogador.close()  # << [USO DE SOCKETS NO CÓDIGO]
 
 """
 *
@@ -119,4 +151,5 @@ def inicia_aplicacao_jogador(ip_servidor):
 """
 
 if __name__ == "__main__":
+    pede_dados_IP_SERVIDOR()
     root.mainloop()     
