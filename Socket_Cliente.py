@@ -104,7 +104,7 @@ def fecha_janela_TOPLEVEL(Toplevel):
 # Aviso de IP inválido:
 def aviso_dados_IP_ERRADOS():
     newWindow = Toplevel(root)
-    newWindow.title("Jogador-01: Aviso!")
+    newWindow.title("Cliente: Aviso!")
     newWindow.geometry("280x155")
 
     insere_dados_IP_SERVIDOR_label = Label(newWindow,image = label_DADOS_IP_INVALIDOS_bg_asset, width=276, height=151)
@@ -124,7 +124,7 @@ def checa_ip(endereco_ip,Toplevel_entry):
 # Janela que pede os dados do IP do servidor
 def pede_dados_IP_SERVIDOR():
     newWindow = Toplevel(root)
-    newWindow.title("Socket: Jogador-01")
+    newWindow.title("Socket: Cliente")
     newWindow.geometry("280x155")
 
     newWindow.protocol("WM_DELETE_WINDOW", lambda:fecha_APLICACAO_2(newWindow))
@@ -156,7 +156,7 @@ def inicia_aplicacao_jogador(ip_servidor):
         socket_jogador = socket.socket()  # << [USO DE SOCKETS NO CÓDIGO]
         socket_jogador.connect((ENDERECO_JOGADOR, PORTA_JOGADOR))  # << [USO DE SOCKETS NO CÓDIGO]
 
-        msg_de_entrada = '<Jogador-01 conectou-se ao servidor!>'
+        msg_de_entrada = '<Um Cliente conectou-se ao servidor!>'
         socket_jogador.send(msg_de_entrada.encode())
 
         flag_estado_do_socket = 1
@@ -173,7 +173,7 @@ def mostra_janela_PRINCIPAL():
     global socket_jogador
     
     newWindow = Toplevel(root)
-    newWindow.title("Socket: Jogador-01")
+    newWindow.title("Socket: Cliente")
     newWindow.geometry("309x382")
 
     bg_label = Label(newWindow,image = JANELA_PRINCIPAL_asset)
@@ -200,7 +200,7 @@ def mostra_janela_PRINCIPAL():
     text_area.tag_config('msg', foreground='blue')
 
     if flag_estado_do_socket == 1:
-        msg = '<Jogador-01 entrou no chat!>'
+        msg = '<Um Cliente entrou no chat!>'
         socket_jogador.send(msg.encode()) # << [USO DE SOCKETS NO CÓDIGO]
 
     threading.Thread(target=recebe_mensagens, args=(text_area,socket_jogador)).start() #<---- THREAD 'recebe_mensagens' *****
@@ -220,7 +220,7 @@ Funções utilizadas pelos Sockets jogador
 
 def mostra_janela_SERVIDOR_CAIU():
     newWindow = Toplevel(root)
-    newWindow.title("Jogador-01: Aviso!")
+    newWindow.title("Cliente: Aviso!")
     newWindow.geometry("280x155")
 
     newWindow.protocol("WM_DELETE_WINDOW", lambda:fecha_APLICACAO_2(newWindow))
@@ -292,7 +292,7 @@ def recebe_mensagens(ScrolledText,jogador_socket: socket.socket):
             msg = jogador_socket.recv(1024) #<---- Fica esperando receber as mensagens enviadas pelo servidor (Máximo de 1024 bytes).
             
             if str(msg.decode())!= "":
-                ScrolledText.insert(tk.INSERT,"<Jogador-02>: "+str(msg.decode())+"\n")
+                ScrolledText.insert(tk.INSERT,"<Cliente>: "+str(msg.decode())+"\n")
                 #print("<Jogador-02>: "+str(msg.decode())+"\n")
 
         except Exception as erro: #<---- Quando o servidor cai.
