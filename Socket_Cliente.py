@@ -206,6 +206,87 @@ def mostra_janela_SERVIDOR_CAIU():
     ok_button = Button(newWindow, image=imagem_OK_BUTTON_asset,command=lambda:fecha_APLICACAO_2(newWindow))
     ok_button.place(x=127, y=107)
         
+ """
+Função para ficar checando se o servidor ainda está ativo enquando o código do jogador está rodando.
+"""
+def checa_SERVIDOR_INICIO(event,Toplevel_entry):
+    global flag_estado_do_socket
+    global socket_jogador
+
+    try:
+        msg = ''
+        socket_jogador.send(msg.encode()) # << [USO DE SOCKETS NO CÓDIGO]
+        
+    except Exception as erro:
+        socket_jogador.close() # << [USO DE SOCKETS NO CÓDIGO]
+        flag_estado_do_socket = 0
+
+    if flag_estado_do_socket == 1:
+        mostra_interface_principal_jogador(Toplevel_entry)
+
+    else:
+        mostra_janela_SERVIDOR_CAIU()
+
+def checa_SERVIDOR_INICIO_caso_02(newWindow,flag):
+    global flag_estado_do_socket
+    global socket_jogador
+
+    try:
+        msg = ''
+        socket_jogador.send(msg.encode()) # << [USO DE SOCKETS NO CÓDIGO]
+        
+    except Exception as erro:
+        socket_jogador.close() # << [USO DE SOCKETS NO CÓDIGO]
+        flag_estado_do_socket = 0
+
+    fecha_APLICACAO(newWindow,flag)
+
+# Abaixo, lemos a entrada do widget do Tkinter do tipo 'Entry' e armazemos seu valor na variavel 'msg' e mandamos ela ao servidor:
+def envia_mensagem(entry_widget,ScrolledText):
+    global flag_estado_do_socket
+    global socket_jogador
+    
+    msg = entry_widget
+
+    if flag_estado_do_socket == 1:
+        ScrolledText.insert(tk.INSERT,"<Você>: "+msg+"\n")
+        socket_jogador.send(msg.encode())  # << [USO DE SOCKETS NO CÓDIGO]
+
+    else:
+        ScrolledText.insert(tk.INSERT,"<Você>: "+msg+"\n")
+        socket_jogador.send(msg.encode())  # << [USO DE SOCKETS NO CÓDIGO]
+
+def recebe_mensagens(ScrolledText,jogador_socket: socket.socket):
+    # Aqui recebe as mensagens enviadas pelo servidro e mostra elas pro próprio jogador, aqui uso um widget de texto do tkinter (ScrolledText) para exibí-las:
+    global socket_jogador
+
+    while True:
+        try:
+            msg = jogador_socket.recv(1024) #<---- Fica esperando receber as mensagens enviadas pelo servidor (Máximo de 1024 bytes).
+            
+            if str(msg.decode())!= "":
+                ScrolledText.insert(tk.INSERT,"<Jogador-02>: "+str(msg.decode())+"\n")
+                #print("<Jogador-02>: "+str(msg.decode())+"\n")
+
+        except Exception as erro: #<---- Quando o servidor cai.
+            print(erro)
+            mostra_janela_SERVIDOR_CAIU()
+            jogador_socket.close()  # << [USO DE SOCKETS NO CÓDIGO]
+            flag_estado_do_socket = 0
+            break
+
+# https://www.delftstack.com/pt/howto/python/get-ip-address-python/#:~:text=locais%20usando%20Python.-,Use%20a%20fun%C3%A7%C3%A3o%20socket.,o%20Python%20est%C3%A1%20sendo%20executado.
+def extrai_IP_da_maquina():
+    st = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:       
+        st.connect(('10.255.255.255', 1))
+        IP = st.getsockname()[0]
+    except Exception:
+        IP = '127.0.0.1'
+    finally:
+        st.close()
+    return IP
+     
 """
 *
 *       **********************************
